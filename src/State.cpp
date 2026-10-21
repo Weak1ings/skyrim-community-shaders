@@ -166,6 +166,13 @@ void State::Draw()
 			truePBR.SetShaderResources(context);
 		}
 
+		if (customPixelShader && currentShader && currentShader->shaderType.get() == RE::BSShader::Type::ImageSpace &&
+			std::string_view(static_cast<const RE::BSImagespaceShader*>(currentShader)->name) == "BSImagespaceShaderReflectionsRayTracing") {
+			auto* reflections = globals::game::renderer->GetRendererData().cubemapRenderTargets[RE::RENDER_TARGETS_CUBEMAP::kREFLECTIONS].SRV;
+			context->PSSetShaderResources(4, 1, &reflections);
+			globals::game::shadowState->GetRuntimeData().PSResourceModifiedBits |= (1u << 4);
+		}
+
 		if (permutationData != permutationDataPrevious) {
 			permutationCB->Update(permutationData);
 			permutationDataPrevious = permutationData;
